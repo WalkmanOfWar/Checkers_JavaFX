@@ -3,4 +3,4 @@
 <?import javafx.scene.shape.Ellipse?>
 
 
-<Ellipse fx:id="whitePiece" fill="#ffffff" radiusX="0.3125" radiusY="0.26" stroke="BLACK" strokeType="INSIDE" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" />
+<Ellipse fx:id="whitePiece" fill="#ffffff" radiusX="31.25" radiusY="26" stroke="BLACK" strokeType="INSIDE" translateX="18.75" translateY="24" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" />

@@ -18,9 +18,9 @@ public class Piece extends StackPane {
         relocate(x*TILE_SIZE, y*TILE_SIZE);
         Ellipse bg;
         if(type == PieceType.RED)
-            bg = FXMLLoader.load(getClass().getResource("com/example/checkers/RedPiece.fxml"));
+            bg = FXMLLoader.load(getClass().getResource("RedPiece.fxml"));
         else
-            bg = FXMLLoader.load(getClass().getResource("com/example/checkers/WhitePiece.fxml"));
+            bg = FXMLLoader.load(getClass().getResource("WhitePiece.fxml"));
 
         getChildren().add(bg);
     }
