@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.shape.Ellipse?>
+<?import javafx.scene.text.Font?>
+
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1000.0" style="-fx-background-color: #dcded9;" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.checkers.Controller">
+   <children>
+      <Ellipse fx:id="redPiece" fill="#ff1f1f" layoutX="846.0" layoutY="360.0" radiusX="46.0" radiusY="40.0" stroke="BLACK" strokeType="INSIDE" />
+      <Ellipse fx:id="whitePiece" fill="#ffffff" layoutX="846.0" layoutY="440.0" radiusX="46.0" radiusY="40.0" stroke="BLACK" strokeType="INSIDE" />
+      <Label layoutX="894.0" layoutY="340.0" text="Gracz 1">
+         <font>
+            <Font size="28.0" />
+         </font>
+      </Label>
+      <Label layoutX="894.0" layoutY="420.0" text="Gracz 2">
+         <font>
+            <Font size="28.0" />
+         </font>
+      </Label>
+      <Label fx:id="redLabel" layoutX="826.0" layoutY="348.0" text="Label">
+         <font>
+            <Font name="System Bold Italic" size="16.0" />
+         </font>
+      </Label>
+      <Label fx:id="whiteLabel" layoutX="826.0" layoutY="428.0" text="Label">
+         <font>
+            <Font name="System Bold Italic" size="16.0" />
+         </font>
+      </Label>
+   </children>
+</Pane>
