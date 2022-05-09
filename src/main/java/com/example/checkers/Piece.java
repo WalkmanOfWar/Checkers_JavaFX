@@ -24,6 +24,7 @@ public class Piece extends StackPane {
     PieceType getType(){
         return type;
     }
+
     public Piece(PieceType type, int x, int y) throws IOException {
         this.type = type;
         move(x,y);

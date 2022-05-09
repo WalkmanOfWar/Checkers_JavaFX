@@ -49,28 +49,45 @@ public class CheckersApp extends Application {
                 }
             }
         }
+        /*for (int i =0 ; i<HEIGHT;i++){
+            for (int j = 0; j< HEIGHT;j++){
+                System.out.println(board[j][i].hasPiece());
+            }
+        }*/
 
         return root;
     }
     private MoveResult tryMove(Piece piece, int newX, int newY){
-        if (board[newX][newY].hasPiece() || (newX+ newY)%2 == 0 || piece.getType() == (turn %2 == 0 ? PieceType.WHITE : PieceType.RED)){
+        if (board[newX][newY].hasPiece() || (newX+ newY)%2 == 0 || piece.getType() == (turn %2 == 1 ? PieceType.WHITE : PieceType.RED)){
             return new MoveResult(MoveType.NONE);
         }
         int x0 = toBoard(piece.getOldX());
         int y0 = toBoard(piece.getOldY());
-        if (Math.abs(newX - x0) == 1 && newY -y0 == piece.getType().moveDir){
+        if (Math.abs(newX - x0) == 1 && newY - y0 == piece.getType().moveDir){ //sprawdzanie czy ktoś nie chce sie ruszyc o wiecej niz 1 pole
             turn++;
             return new MoveResult(MoveType.NORMAL);
-        }else if(Math.abs(newX - x0) == 2 && newY -y0 == piece.getType().moveDir*2){
+        }else if(Math.abs(newX - x0) == 2 && newY - y0 == piece.getType().moveDir*2){
             int x1 = x0+ (newX - x0)/2;
             int y1 = y0 + (newY - y0)/2;
             if (board[x1][y1].hasPiece() && board[x1][y1].getPiece().getType() != piece.getType()){
-                turn++;
+               /* if (canStrikeMore(PieceType ) != True){
+                    turn++;
+                }*/
                 return new MoveResult(MoveType.KILL, board[x1][y1].getPiece());
             }
         }
         return new MoveResult(MoveType.NONE);
     }
+
+    boolean canStrikeMore(PieceType type, int x, int y){
+        if ((type == PieceType.WHITE && y<2) || (type == PieceType.RED && y>5))
+            return false;
+        if (type == PieceType.WHITE && x>0 && x<6){
+
+        }
+        return false;
+    }
+
     private int toBoard(double pixel){
         return (int)(pixel+TILE_SIZE/2)/TILE_SIZE;
     }
