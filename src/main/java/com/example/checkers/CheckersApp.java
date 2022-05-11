@@ -22,7 +22,7 @@ public class CheckersApp extends Application {
 
     private Group tileGroup = new Group();
     private Group pieceGroup = new Group();
-    private Piece mustStrikeAgain;
+    private Piece mustStrike = null;
 
     private Parent createContent() throws IOException {
         Pane root = FXMLLoader.load(getClass().getResource("Board.fxml"));
@@ -66,24 +66,21 @@ public class CheckersApp extends Application {
         }
         int x0 = toBoard(piece.getOldX());
         int y0 = toBoard(piece.getOldY());
-
-        if (Math.abs(newX - x0) == 1 && newY - y0 == piece.getType().moveDir) { //sprawdzanie czy ktoś nie chce sie ruszyc o wiecej niz 1 pole
+        mustStrike = checkIfAnyCheckerIsStrikable(turn % 2 == 1 ? PieceType.RED:PieceType.WHITE );
+        if (Math.abs(newX - x0) == 1 && newY - y0 == piece.getType().moveDir && mustStrike == null) { //sprawdzanie czy ktoś nie chce sie ruszyc o wiecej niz 1 pole
             turn++;
             return new MoveResult(MoveType.NORMAL);
-        } else if (Math.abs(newX - x0) == 2 && newY - y0 == piece.getType().moveDir * 2) {
-
+        } else if ((Math.abs(newX - x0) == 2 && newY - y0 == piece.getType().moveDir * 2)) {
             int x1 = x0 + (newX - x0) / 2;
             int y1 = y0 + (newY - y0) / 2;
             if (board[x1][y1].hasPiece() && board[x1][y1].getPiece().getType() != piece.getType()) {
                 boolean canAttackAgain = canStrikeMore(piece.getType(),newX,newY);
-                System.out.println(piece.getType()+" "+x0+" "+y0);
-                System.out.println(canAttackAgain);
                 if (canAttackAgain){
-                    mustStrikeAgain = piece;
+                    mustStrike = piece;
                     return new MoveResult(MoveType.KILL, board[x1][y1].getPiece());
                 }else{
                     turn++;
-                    mustStrikeAgain = null;
+                    mustStrike = null;
                     return new MoveResult(MoveType.KILL, board[x1][y1].getPiece());
                 }
 
@@ -95,24 +92,32 @@ public class CheckersApp extends Application {
     boolean canStrikeMore(PieceType type, int x, int y) {
         if ((type == PieceType.WHITE && y < 2) || (type == PieceType.RED && y > 5))
             return false;
+        boolean isStrikable = false;
         if (type == PieceType.WHITE) {
             if (x >= 2 && x <= 7){
-                return board[x - 1][y - 1].hasPiece() && board[x - 1][y - 1].getPiece().getType() == PieceType.RED &&
-                        !board[x - 2][y - 2].hasPiece();
-            }else if(x>=0 && x<6){
-                return board[x + 1][y - 1].hasPiece() && board[x + 1][y - 1].getPiece().getType() == PieceType.RED &&
-                        !board[x + 2][y - 2].hasPiece();
+                if(board[x - 1][y - 1].hasPiece() && board[x - 1][y - 1].getPiece().getType() == PieceType.RED &&
+                        !board[x - 2][y - 2].hasPiece())
+                    isStrikable = true;
+            }
+            if(x>=0 && x<6){
+                if(board[x + 1][y - 1].hasPiece() && board[x + 1][y - 1].getPiece().getType() == PieceType.RED &&
+                        !board[x + 2][y - 2].hasPiece()){
+                    isStrikable = true;
+                }
             }
         } else if (type == PieceType.RED) {
             if (x>1 && x<7){
-                return board[x - 1][y + 1].hasPiece() && board[x - 1][y + 1].getPiece().getType() == PieceType.WHITE &&
-                        !board[x - 2][y + 2].hasPiece();
-            }else if(x>=0 && x<6){
-                return board[x + 1][y + 1].hasPiece() && board[x + 1][y + 1].getPiece().getType() == PieceType.WHITE &&
-                        !board[x + 2][y + 2].hasPiece();
+                if(board[x - 1][y + 1].hasPiece() && board[x - 1][y + 1].getPiece().getType() == PieceType.WHITE &&
+                        !board[x - 2][y + 2].hasPiece())
+                    isStrikable = true;
+            }
+            if(x>=0 && x<6){
+                if(board[x + 1][y + 1].hasPiece() && board[x + 1][y + 1].getPiece().getType() == PieceType.WHITE &&
+                        !board[x + 2][y + 2].hasPiece())
+                    isStrikable = true;
             }
         }
-        return false;
+        return isStrikable;
     }
 
     private int toBoard(double pixel) {
@@ -130,6 +135,7 @@ public class CheckersApp extends Application {
     private Piece makePiece(PieceType type, int x, int y) throws IOException {
         Piece piece = new Piece(type, x, y);
         piece.setOnMouseReleased(e -> {
+            mustStrike=checkIfAnyCheckerIsStrikable(turn % 2 == 1 ? PieceType.WHITE : PieceType.RED);
             int newX = toBoard(piece.getLayoutX()); //moving mouse changes layout
             int newY = toBoard(piece.getLayoutY());
             MoveResult result = tryMove(piece, newX, newY);
@@ -157,6 +163,16 @@ public class CheckersApp extends Application {
             }
         });
         return piece;
+    }
+    private Piece checkIfAnyCheckerIsStrikable(PieceType type) {
+        for (int y = 0; y < HEIGHT; y++) {
+            for (int x = 0; x < WIDTH; x++) {
+                if(board[x][y].hasPiece() && board[x][y].getPiece().getType() == type && canStrikeMore(type,x,y)){
+                    return board[x][y].getPiece();
+                }
+            }
+        }
+        return null;
     }
 
     public static void main(String[] args) {
