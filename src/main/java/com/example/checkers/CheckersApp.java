@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Group;
 import javafx.scene.Parent;
+import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
@@ -21,6 +22,7 @@ public class CheckersApp extends Application {
 
     private Group tileGroup = new Group();
     private Group pieceGroup = new Group();
+    private Piece mustStrikeAgain;
 
     private Parent createContent() throws IOException {
         Pane root = FXMLLoader.load(getClass().getResource("Board.fxml"));
@@ -57,39 +59,64 @@ public class CheckersApp extends Application {
 
         return root;
     }
-    private MoveResult tryMove(Piece piece, int newX, int newY){
-        if (board[newX][newY].hasPiece() || (newX+ newY)%2 == 0 || piece.getType() == (turn %2 == 1 ? PieceType.WHITE : PieceType.RED)){
+
+    private MoveResult tryMove(Piece piece, int newX, int newY) {
+        if (board[newX][newY].hasPiece() || (newX + newY) % 2 == 0 || piece.getType() == (turn % 2 == 1 ? PieceType.WHITE : PieceType.RED)) {
             return new MoveResult(MoveType.NONE);
         }
         int x0 = toBoard(piece.getOldX());
         int y0 = toBoard(piece.getOldY());
-        if (Math.abs(newX - x0) == 1 && newY - y0 == piece.getType().moveDir){ //sprawdzanie czy ktoś nie chce sie ruszyc o wiecej niz 1 pole
+
+        if (Math.abs(newX - x0) == 1 && newY - y0 == piece.getType().moveDir) { //sprawdzanie czy ktoś nie chce sie ruszyc o wiecej niz 1 pole
             turn++;
             return new MoveResult(MoveType.NORMAL);
-        }else if(Math.abs(newX - x0) == 2 && newY - y0 == piece.getType().moveDir*2){
-            int x1 = x0+ (newX - x0)/2;
-            int y1 = y0 + (newY - y0)/2;
-            if (board[x1][y1].hasPiece() && board[x1][y1].getPiece().getType() != piece.getType()){
-               /* if (canStrikeMore(PieceType ) != True){
+        } else if (Math.abs(newX - x0) == 2 && newY - y0 == piece.getType().moveDir * 2) {
+
+            int x1 = x0 + (newX - x0) / 2;
+            int y1 = y0 + (newY - y0) / 2;
+            if (board[x1][y1].hasPiece() && board[x1][y1].getPiece().getType() != piece.getType()) {
+                boolean canAttackAgain = canStrikeMore(piece.getType(),newX,newY);
+                System.out.println(piece.getType()+" "+x0+" "+y0);
+                System.out.println(canAttackAgain);
+                if (canAttackAgain){
+                    mustStrikeAgain = piece;
+                    return new MoveResult(MoveType.KILL, board[x1][y1].getPiece());
+                }else{
                     turn++;
-                }*/
-                return new MoveResult(MoveType.KILL, board[x1][y1].getPiece());
+                    mustStrikeAgain = null;
+                    return new MoveResult(MoveType.KILL, board[x1][y1].getPiece());
+                }
+
             }
         }
         return new MoveResult(MoveType.NONE);
     }
 
-    boolean canStrikeMore(PieceType type, int x, int y){
-        if ((type == PieceType.WHITE && y<2) || (type == PieceType.RED && y>5))
+    boolean canStrikeMore(PieceType type, int x, int y) {
+        if ((type == PieceType.WHITE && y < 2) || (type == PieceType.RED && y > 5))
             return false;
-        if (type == PieceType.WHITE && x>0 && x<6){
-
+        if (type == PieceType.WHITE) {
+            if (x >= 2 && x <= 7){
+                return board[x - 1][y - 1].hasPiece() && board[x - 1][y - 1].getPiece().getType() == PieceType.RED &&
+                        !board[x - 2][y - 2].hasPiece();
+            }else if(x>=0 && x<6){
+                return board[x + 1][y - 1].hasPiece() && board[x + 1][y - 1].getPiece().getType() == PieceType.RED &&
+                        !board[x + 2][y - 2].hasPiece();
+            }
+        } else if (type == PieceType.RED) {
+            if (x>1 && x<7){
+                return board[x - 1][y + 1].hasPiece() && board[x - 1][y + 1].getPiece().getType() == PieceType.WHITE &&
+                        !board[x - 2][y + 2].hasPiece();
+            }else if(x>=0 && x<6){
+                return board[x + 1][y + 1].hasPiece() && board[x + 1][y + 1].getPiece().getType() == PieceType.WHITE &&
+                        !board[x + 2][y + 2].hasPiece();
+            }
         }
         return false;
     }
 
-    private int toBoard(double pixel){
-        return (int)(pixel+TILE_SIZE/2)/TILE_SIZE;
+    private int toBoard(double pixel) {
+        return (int) (pixel + TILE_SIZE / 2) / TILE_SIZE;
     }
 
     @Override
@@ -99,26 +126,27 @@ public class CheckersApp extends Application {
         stage.setScene(scene);
         stage.show();
     }
+
     private Piece makePiece(PieceType type, int x, int y) throws IOException {
-        Piece piece = new Piece(type,x,y);
+        Piece piece = new Piece(type, x, y);
         piece.setOnMouseReleased(e -> {
             int newX = toBoard(piece.getLayoutX()); //moving mouse changes layout
             int newY = toBoard(piece.getLayoutY());
             MoveResult result = tryMove(piece, newX, newY);
-            int x0  = toBoard(piece.getOldX());
+            int x0 = toBoard(piece.getOldX());
             int y0 = toBoard(piece.getOldY());
-            switch (result.getType()){
+            switch (result.getType()) {
 
                 case NONE -> {
                     piece.abortMove();
                 }
                 case NORMAL -> {
-                    piece.move(newX,newY);
+                    piece.move(newX, newY);
                     board[x0][y0].setPiece(null);
                     board[newX][newY].setPiece(piece);
                 }
                 case KILL -> {
-                    piece.move(newX,newY);
+                    piece.move(newX, newY);
                     board[x0][y0].setPiece(null);
                     board[newX][newY].setPiece(piece);
 
@@ -130,6 +158,7 @@ public class CheckersApp extends Application {
         });
         return piece;
     }
+
     public static void main(String[] args) {
         launch();
     }
