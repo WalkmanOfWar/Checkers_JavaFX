@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.shape.Ellipse?>
 
 
-<Ellipse fx:id="redPiece" fill="#ff1f1f" radiusX="31.25" radiusY="26" stroke="BLACK" strokeType="INSIDE" translateX="18.75" translateY="24" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" />
+<Ellipse fx:id="redPiece" fill="#ff1f1f" radiusX="31.25" radiusY="26" stroke="BLACK" strokeType="INSIDE" translateX="18.75" translateY="24" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1">
+   <cursor>
+      <Cursor fx:constant="CLOSED_HAND" />
+   </cursor>
+</Ellipse>

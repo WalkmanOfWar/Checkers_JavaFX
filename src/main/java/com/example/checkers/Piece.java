@@ -25,14 +25,19 @@ public class Piece extends StackPane {
         return type;
     }
 
+    public void setType(PieceType type) {
+        this.type = type;
+    }
+
     public Piece(PieceType type, int x, int y) throws IOException {
         this.type = type;
         move(x,y);
         Ellipse bg;
-        if(type == PieceType.RED)
-            bg = FXMLLoader.load(getClass().getResource("RedPiece.fxml"));
-        else
-            bg = FXMLLoader.load(getClass().getResource("WhitePiece.fxml"));
+        switch (type){
+            case RED -> bg = FXMLLoader.load(getClass().getResource("RedPiece.fxml"));
+            case WHITE -> bg = FXMLLoader.load(getClass().getResource("WhitePiece.fxml"));
+            default -> bg= null;
+        }
 
         getChildren().add(bg);
         setOnMousePressed(e ->{
