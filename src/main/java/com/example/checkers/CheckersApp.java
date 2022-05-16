@@ -26,10 +26,12 @@ public class CheckersApp extends Application {
     private Group tileGroup = new Group();
     private Group pieceGroup = new Group();
     private Piece mustStrike = null;
-
+    public Controller controller = new Controller();
     private Parent createContent() throws IOException {
         Pane root = FXMLLoader.load(getClass().getResource("Board.fxml"));
         root.getChildren().addAll(tileGroup, pieceGroup);
+        root.getChildren().add(controller.redLabel);
+        root.getChildren().add(controller.whiteLabel);
         turn = 0;
         for (int y = 0; y < HEIGHT; y++) {
             for (int x = 0; x < WIDTH; x++) {
@@ -77,10 +79,17 @@ public class CheckersApp extends Application {
         } else if ((Math.abs(newX - x0) == 2 && (newY - y0 == piece.getType().moveDir * 2 || newY - y0 == piece.getType().isKing * 2))) {
             int x1 = x0 + (newX - x0) / 2;
             int y1 = y0 + (newY - y0) / 2;
-            if (board[x1][y1].hasPiece() && board[x1][y1].getPiece().getType() != piece.getType()) {
+            if (board[x1][y1].hasPiece() && (((board[x1][y1].getPiece().getType()==WHITE || board[x1][y1].getPiece().getType()==WHITEKING) &&
+                    (piece.getType() == RED || piece.getType() == REDKING)) ||
+                    ((board[x1][y1].getPiece().getType()==RED || board[x1][y1].getPiece().getType()==REDKING) &&
+                            (piece.getType() == WHITE || piece.getType() == WHITEKING)))) {
                 boolean canAttackAgain = canStrikeMore(piece.getType(), newX, newY);
                 if (canAttackAgain) {
                     mustStrike = piece;
+                    if (piece.getType() == RED || piece.getType() == REDKING){
+                        controller.setRedCounter(controller.getRedCounter()+1);
+                    }else
+                        controller.setRedCounter(controller.getWhiteCounter()+1);
                     return new MoveResult(MoveType.KILL, board[x1][y1].getPiece());
                 } else {
                     turn++;
@@ -227,6 +236,7 @@ public class CheckersApp extends Application {
                     board[toBoard(otherPiece.getOldX())][toBoard(otherPiece.getOldY())].setPiece(null);
                     pieceGroup.getChildren().remove(otherPiece);
                     System.out.println(board[newX][newY].getPiece().getType());
+                    controller.setRedLabel(6);
                 }
             }
         });
