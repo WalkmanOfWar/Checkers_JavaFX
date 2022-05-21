@@ -1,36 +1,32 @@
 package com.example.checkers;
 
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
+import javafx.scene.input.InputMethodEvent;
 
-public class Controller {
+import java.net.URL;
+import java.util.ResourceBundle;
+
+public class Controller implements Initializable{
     @FXML
-    public Label whiteLabel = new Label("321");
+    public Label whiteLabel = new Label();
     @FXML
-    public Label redLabel = new Label("312");
+    public Label redLabel = new Label();
+    @FXML
+    public Label timerLabel = new Label();
 
-    int redCounter = 0;
-    int whiteCounter = 0;
+    public int redCounter=12;
+    public int whiteCounter=12;
 
-    public int getRedCounter() {
-        return redCounter;
+
+    public void decrementRed(){
+        redCounter--;
     }
-
-    public void setRedCounter(int redCounter) {
-        this.redCounter = redCounter;
+    public void decrementWhite(){whiteCounter--;}
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        whiteLabel.setText(Integer.toString(whiteCounter=12));
+        redLabel.setText(Integer.toString(redCounter=12));
     }
-
-    public void setWhiteLabel(Label whiteLabel) {
-        this.whiteLabel = whiteLabel;
-    }
-
-    public void setRedLabel(int number) {
-        redLabel.setText(Integer.toString(number));
-    }
-
-    public int getWhiteCounter() {
-        return whiteCounter;
-    }
-
 }

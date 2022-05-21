@@ -19,14 +19,24 @@
             <Font size="28.0" />
          </font>
       </Label>
-      <Label fx:id="redLabel" layoutX="841.0" layoutY="348.0">
+      <Label fx:id="redLabel" layoutX="837.0" layoutY="348.0" text="12">
          <font>
             <Font name="System Bold Italic" size="16.0" />
          </font>
       </Label>
-      <Label fx:id="whiteLabel" layoutX="841.0" layoutY="428.0">
+      <Label fx:id="whiteLabel" layoutX="837.0" layoutY="428.0" text="12">
          <font>
             <Font name="System Bold Italic" size="16.0" />
+         </font>
+      </Label>
+      <Label layoutX="811.0" layoutY="255.0" text="Timer:">
+         <font>
+            <Font size="21.0" />
+         </font>
+      </Label>
+      <Label layoutX="882.0" layoutY="255.0" text="00:00">
+         <font>
+            <Font size="21.0" />
          </font>
       </Label>
    </children>

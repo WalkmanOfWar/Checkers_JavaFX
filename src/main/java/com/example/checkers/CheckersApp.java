@@ -1,14 +1,22 @@
 package com.example.checkers;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Ellipse;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.io.IOException;
 
@@ -20,18 +28,36 @@ public class CheckersApp extends Application {
     public static final int WIDTH = 8;
     public static final int HEIGHT = 8;
 
+    private int whiteCounter = 12;
+    private int redCounter = 12;
     private int turn;
     private Tile[][] board = new Tile[WIDTH][HEIGHT];
 
     private Group tileGroup = new Group();
     private Group pieceGroup = new Group();
     private Piece mustStrike = null;
-    public Controller controller = new Controller();
+    private Pane root;
+    Controller controller = new Controller();
+    StopWatch stopwatch = new StopWatch();
+
+    Timeline timeline = new Timeline(
+            new KeyFrame(Duration.seconds(0),
+                    new EventHandler<ActionEvent>() {
+                        @Override
+                        public void handle(ActionEvent actionEvent)
+                        {
+                            ((Label)root.getChildren().get(4)).setText(Integer.toString(controller.redCounter));
+                            ((Label)root.getChildren().get(5)).setText(Integer.toString(controller.whiteCounter));
+                            ((Label)root.getChildren().get(7)).setText(stopwatch.text.getValue());                        }
+                    }
+            ),
+            new KeyFrame(Duration.millis(1))
+    );
+
+
     private Parent createContent() throws IOException {
-        Pane root = FXMLLoader.load(getClass().getResource("Board.fxml"));
+        root = FXMLLoader.load(getClass().getResource("Board.fxml"));
         root.getChildren().addAll(tileGroup, pieceGroup);
-        root.getChildren().add(controller.redLabel);
-        root.getChildren().add(controller.whiteLabel);
         turn = 0;
         for (int y = 0; y < HEIGHT; y++) {
             for (int x = 0; x < WIDTH; x++) {
@@ -56,11 +82,6 @@ public class CheckersApp extends Application {
                 }
             }
         }
-        /*for (int i =0 ; i<HEIGHT;i++){
-            for (int j = 0; j< HEIGHT;j++){
-                System.out.println(board[j][i].hasPiece());
-            }
-        }*/
         return root;
     }
 
@@ -75,6 +96,7 @@ public class CheckersApp extends Application {
         mustStrike = checkIfAnyCheckerIsStrikable(piece.getType());
         if (Math.abs(newX - x0) == 1 && (newY - y0 == piece.getType().moveDir || newY - y0 == piece.getType().isKing) && mustStrike == null) { //sprawdzanie czy ktoś nie chce sie ruszyc o wiecej niz 1 pole
             turn++;
+            stopwatch.reset();
             return new MoveResult(MoveType.NORMAL);
         } else if ((Math.abs(newX - x0) == 2 && (newY - y0 == piece.getType().moveDir * 2 || newY - y0 == piece.getType().isKing * 2))) {
             int x1 = x0 + (newX - x0) / 2;
@@ -86,13 +108,10 @@ public class CheckersApp extends Application {
                 boolean canAttackAgain = canStrikeMore(piece.getType(), newX, newY);
                 if (canAttackAgain) {
                     mustStrike = piece;
-                    if (piece.getType() == RED || piece.getType() == REDKING){
-                        controller.setRedCounter(controller.getRedCounter()+1);
-                    }else
-                        controller.setRedCounter(controller.getWhiteCounter()+1);
                     return new MoveResult(MoveType.KILL, board[x1][y1].getPiece());
                 } else {
                     turn++;
+                    stopwatch.reset();
                     mustStrike = null;
                     return new MoveResult(MoveType.KILL, board[x1][y1].getPiece());
                 }
@@ -199,11 +218,17 @@ public class CheckersApp extends Application {
         stage.setTitle("Checkers");
         stage.setScene(scene);
         stage.show();
+        timeline.setCycleCount(Timeline.INDEFINITE);
+        timeline.setAutoReverse(false);
+        timeline.play();
     }
 
     private Piece makePiece(PieceType type, int x, int y) throws IOException {
         Piece piece = new Piece(type, x, y);
         piece.setOnMouseReleased(e -> {
+           /* ((Label)root.getChildren().get(4)).setText(Integer.toString(controller.redCounter));
+            ((Label)root.getChildren().get(5)).setText(Integer.toString(controller.whiteCounter));*/
+
             mustStrike = checkIfAnyCheckerIsStrikable(piece.getType());
             int newX = toBoard(piece.getLayoutX()); //moving mouse changes layout
             int newY = toBoard(piece.getLayoutY());
@@ -229,6 +254,11 @@ public class CheckersApp extends Application {
                 }
                 case KILL -> {
                     piece.move(newX, newY);
+                    if(board[x0][y0].getPiece().getType() == RED || board[x0][y0].getPiece().getType() == REDKING){
+                        controller.decrementWhite();
+                    }else{
+                        controller.decrementRed();
+                    }
                     board[x0][y0].setPiece(null);
                     board[newX][newY].setPiece(piece);
 
@@ -236,7 +266,6 @@ public class CheckersApp extends Application {
                     board[toBoard(otherPiece.getOldX())][toBoard(otherPiece.getOldY())].setPiece(null);
                     pieceGroup.getChildren().remove(otherPiece);
                     System.out.println(board[newX][newY].getPiece().getType());
-                    controller.setRedLabel(6);
                 }
             }
         });
