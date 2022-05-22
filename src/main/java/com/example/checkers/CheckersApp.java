@@ -247,7 +247,6 @@ public class CheckersApp extends Application {
                     piece.move(newX, newY);
                     board[x0][y0].setPiece(null);
                     board[newX][newY].setPiece(piece);
-                    System.out.println(board[newX][newY].getPiece().getType());
                 }
                 case KILL -> {
                     try {
@@ -267,7 +266,6 @@ public class CheckersApp extends Application {
                     Piece otherPiece = result.getPiece();
                     board[toBoard(otherPiece.getOldX())][toBoard(otherPiece.getOldY())].setPiece(null);
                     pieceGroup.getChildren().remove(otherPiece);
-                    System.out.println(board[newX][newY].getPiece().getType());
                 }
             }
         });
